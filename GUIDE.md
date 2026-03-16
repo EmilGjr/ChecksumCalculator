@@ -1,4 +1,4 @@
-# Checksum Calculator Documentation
+# Guide
 
 ## Overview
 The Checksum Calculator is a command-line tool for computing and verifying file checksums. It helps ensure data integrity by detecting modifications, deletions, or additions in a directory.
