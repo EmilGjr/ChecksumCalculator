@@ -27,18 +27,19 @@ public class FileSystemBuilder {
     }
 
     private FileSystemNode buildRecursive(Path path) throws IOException {
-        // Cycle detection
+
+        // Symbolic link handling
+        if (Files.isSymbolicLink(path) && !followLinks) {
+            return new FileNode(path, Files.size(path));
+
+        }// Cycle detection
         Path realPath = path.toRealPath();
         if (visitedPaths.contains(realPath)) {
             throw new FileSystemException("Cycle detected at: " + path + ". Aborting traversal.");
         }
         visitedPaths.add(realPath);
 
-        // Symbolic link handling
-        if (Files.isSymbolicLink(path) && !followLinks) {
-            return new FileNode(path, Files.size(path));
-        }
-
+        
         if (Files.isDirectory(path)) {
             DirectoryNode directory = new DirectoryNode(path);
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
