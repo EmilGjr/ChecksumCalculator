@@ -73,4 +73,20 @@ class ChecksumFileParserTest {
         assertEquals(1, checksums.size());
         assertEquals("abc123", checksums.get("valid.txt"));
     }
+
+    @Test
+    void testParseJsonChecksumFile() throws IOException {
+        Path checksumFile = tempDir.resolve("checksums.json");
+        Files.writeString(checksumFile, "[\n" +
+                "  {\"path\":\"file1.txt\",\"checksum\":\"abc123\",\"mode\":\"binary\"},\n" +
+                "  {\"path\":\"dir/file2.txt\",\"checksum\":\"xyz789\",\"mode\":\"binary\"}\n" +
+                "]");
+
+        Map<String, String> checksums = ChecksumFileParser.parse(checksumFile);
+
+        assertEquals(2, checksums.size());
+        assertEquals("abc123", checksums.get("file1.txt"));
+        assertEquals("xyz789", checksums.get("dir/file2.txt"));
+    }
+
 }
