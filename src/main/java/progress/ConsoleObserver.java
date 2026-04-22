@@ -27,13 +27,21 @@ public class ConsoleObserver implements Observer {
 
         long bytesProcessed = message.getTotalBytesProcessed();
         long totalBytes = message.getTotalBytes();
-        double percent = totalBytes > 0 ? (bytesProcessed * 100.0) / totalBytes : 0.0;
+        long displayedBytesProcessed = totalBytes > 0
+                ? Math.min(bytesProcessed, totalBytes)
+                : bytesProcessed;
+        long currentFileBytes = message.getCurrentFileBytes();
+        long currentFileSize = message.getCurrentFileSize();
+        long displayedCurrentFileBytes = currentFileSize > 0
+                ? Math.min(currentFileBytes, currentFileSize)
+                : currentFileBytes;
+        double percent = totalBytes > 0 ? (displayedBytesProcessed * 100.0) / totalBytes : 0.0;
         Instant now = Instant.now();
         long elapsedSeconds = Math.max(1, Duration.between(startTime, now).getSeconds());
-        long bytesPerSecond = bytesProcessed / elapsedSeconds;
+        long bytesPerSecond = displayedBytesProcessed / elapsedSeconds;
         String eta = "?";
-        if (bytesPerSecond > 0 && totalBytes > bytesProcessed) {
-            long remaining = totalBytes - bytesProcessed;
+        if (bytesPerSecond > 0 && totalBytes > displayedBytesProcessed) {
+            long remaining = totalBytes - displayedBytesProcessed;
             long etaSeconds = remaining / bytesPerSecond;
             eta = formatDuration(etaSeconds);
         }
@@ -41,9 +49,9 @@ public class ConsoleObserver implements Observer {
         String messageText = String.format(
                 "\rProcessing %s [%d/%d bytes] overall [%d/%d bytes] %.1f%% ETA %s",
                 message.getFileName(),
-                message.getCurrentFileBytes(),
-                message.getCurrentFileSize(),
-                bytesProcessed,
+                displayedCurrentFileBytes,
+                currentFileSize,
+                displayedBytesProcessed,
                 totalBytes,
                 percent,
                 eta

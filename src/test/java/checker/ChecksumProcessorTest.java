@@ -7,9 +7,13 @@ package checker;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -18,6 +22,7 @@ import checker.core.ChecksumCalculator;
 import checker.core.ChecksumProcessor;
 import checker.filesystem.DirectoryNode;
 import checker.filesystem.FileNode;
+import checker.storage.ScanMemento;
 import progress.ConsoleObserver;
 import progress.ProgressMessage;
 import progress.ProgressReporter;
@@ -127,5 +132,49 @@ class ChecksumProcessorTest {
         assertEquals(2, result.size());
         assertEquals("2", result.get("file1.txt"));
         assertEquals("4", result.get("sub/file2.txt"));
+    }
+
+    @Test
+    void testResumeDoesNotDoubleCountCurrentFileBytes() throws IOException {
+        java.io.File completedFile = tempDir.resolve("done.txt").toFile();
+        try (FileOutputStream fos = new FileOutputStream(completedFile)) {
+            fos.write("12345".getBytes());
+        }
+
+        java.io.File currentFile = tempDir.resolve("current.txt").toFile();
+        try (FileOutputStream fos = new FileOutputStream(currentFile)) {
+            fos.write("1234567890".getBytes());
+        }
+
+        DirectoryNode root = new DirectoryNode(tempDir);
+        root.addChild(new FileNode(completedFile.toPath(), completedFile.length()));
+        root.addChild(new FileNode(currentFile.toPath(), currentFile.length()));
+
+        Map<String, String> completedChecksums = new LinkedHashMap<>();
+        completedChecksums.put("done.txt", "5");
+
+        ScanMemento resumeState = new ScanMemento(
+                tempDir.toString(),
+                "SHA256",
+                false,
+                2,
+                1,
+                completedFile.length() + currentFile.length(),
+                completedFile.length() + 4,
+                "current.txt",
+                4,
+                completedChecksums
+        );
+
+        List<Long> observedTotals = new ArrayList<>();
+        reporter.addObserver(message -> observedTotals.add(message.getTotalBytesProcessed()));
+
+        Map<String, String> result = processor.process(root, resumeState);
+
+        assertEquals(2, result.size());
+        assertEquals("5", result.get("done.txt"));
+        assertEquals("10", result.get("current.txt"));
+        assertTrue(observedTotals.stream().allMatch(total -> total <= 15));
+        assertEquals(15L, observedTotals.get(observedTotals.size() - 1));
     }
 }

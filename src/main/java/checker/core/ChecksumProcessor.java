@@ -65,7 +65,11 @@ public class ChecksumProcessor {
         if (resumeState != null) {
             completedChecksums.putAll(resumeState.getCompletedChecksums());
             processedFiles = resumeState.getProcessedFiles();
-            totalBytesRead.set(resumeState.getTotalBytesProcessed());
+            long resumedBytes = Math.max(
+                    0,
+                    resumeState.getTotalBytesProcessed() - resumeState.getCurrentFileBytes()
+            );
+            totalBytesRead.set(resumedBytes);
             currentFile = resumeState.getCurrentFile();
             currentFileBytes = resumeState.getCurrentFileBytes();
         } else {

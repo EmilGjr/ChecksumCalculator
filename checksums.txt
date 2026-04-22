@@ -1,7 +1,5 @@
-[
-  {"path":"1/1.txt","checksum":"6b6eb80d6b83e99fdd5c115e6e0bdc4f7a86c2780c2fe19400f7275e8cad9b45","mode":"binary"},
-  {"path":"2.txt","checksum":"69bebb2d61ca4c71aac99857a1e164f37989742577fc9e1bf2a8e697ebf960b5","mode":"binary"},
-  {"path":"2/3.txt","checksum":"46911498f0c1ce9ca407ade379087dfab04e4181d7d62626753effe85008509d","mode":"binary"},
-  {"path":"3/4.txt","checksum":"10bd2658f31fd04e82cd480d6801a54eb9e2bc2a090dfe2a8311420bad829894","mode":"binary"},
-  {"path":"test.txt","checksum":"a08a92258f621b55d08ad1e84c90c2ea6286fc6b6c9a4dfa7156afb16c190170","mode":"binary"}
-]
+6b6eb80d6b83e99fdd5c115e6e0bdc4f7a86c2780c2fe19400f7275e8cad9b45 *1/1.txt
+69bebb2d61ca4c71aac99857a1e164f37989742577fc9e1bf2a8e697ebf960b5 *2.txt
+46911498f0c1ce9ca407ade379087dfab04e4181d7d62626753effe85008509d *2/3.txt
+10bd2658f31fd04e82cd480d6801a54eb9e2bc2a090dfe2a8311420bad829894 *3/4.txt
+a08a92258f621b55d08ad1e84c90c2ea6286fc6b6c9a4dfa7156afb16c190170 *test.txt

@@ -7,6 +7,7 @@ package progress;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
@@ -49,6 +50,27 @@ class ConsoleObserverTest {
             String output = outputStream.toString();
             assertTrue(output.contains("file.txt"));
             assertTrue(output.contains("ETA"));
+        } finally {
+            System.setOut(originalOut);
+        }
+    }
+
+    @Test
+    void testUpdateClampsDisplayedProgressTo100Percent() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(outputStream));
+
+        try {
+            ConsoleObserver observer = new ConsoleObserver();
+            ProgressMessage message = new ProgressMessage("file.txt", 1, 2, 150, 100, 150, 100);
+
+            observer.update(message);
+
+            String output = outputStream.toString();
+            assertTrue(output.contains("[100/100 bytes]"));
+            assertTrue(output.contains("100.0%"));
+            assertFalse(output.contains("150.0%"));
         } finally {
             System.setOut(originalOut);
         }
